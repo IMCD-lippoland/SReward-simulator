@@ -260,7 +260,11 @@
     .cell-sub, .detected-cat, .reward-breakdown{ font-size:7px; margin-top:1px; }
     .badge-rate{ font-size:7px; padding:1px 5px; }
     tfoot td{ padding:5px; }
-    .ledger-wrap{ margin-top:8px !important; }
+    .ledger-wrap{ margin-top:8px !important; overflow:visible !important; border-radius:0 !important; box-shadow:none !important; border:none !important; }
+    .ledger-wrap + .ledger-wrap, .layout .ledger-wrap{ border-top: 1px solid #ccc; }
+    table.ledger thead{ display: table-header-group; } /* repeat header on each printed page */
+    table.ledger tr{ break-inside: avoid; page-break-inside: avoid; }
+    .card, .program-strip, .summary{ break-inside: avoid; page-break-inside: avoid; }
     footer.page-footer{ display:none; }
   }
 </style>

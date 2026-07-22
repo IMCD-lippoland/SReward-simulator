@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi Additional Sales Rewards — IMCD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F6F2E8;
+    --bg-soft: #FFFFFF;
+    --panel: #FFFFFF;
+    --panel-line: #E6DFCF;
+    --ink: #2B241F;
+    --ink-soft: #6E655A;
+    --maroon: #7A2E33;
+    --maroon-deep: #5E2125;
+    --maroon-tint: #F3E4E1;
+    --line-dark: #E6DFCF;
+
+    --c-productive: #2F8F6B;
+    --c-elite: #3C63C4;
+    --c-superstar: #7A57C4;
+    --c-champ1: #B9791E;
+    --c-champ2: #B2422A;
+    --c-none: #A39B8C;
+
+    --c-ps-productive: #2F8F6B;
+    --c-ps-elite: #3C63C4;
+    --c-ps-super: #7A57C4;
+    --c-ps-champion: #B2422A;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 88% 0%, rgba(122,46,51,0.05), transparent 45%),
+      radial-gradient(circle at 0% 100%, rgba(47,143,107,0.04), transparent 40%);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    min-height:100vh;
+  }
+  .wrap{ max-width: 1180px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  header{ display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:22px; flex-wrap:wrap; }
+  .eyebrow{ font-family:'JetBrains Mono', monospace; font-size:11.5px; letter-spacing:.14em; color: var(--maroon); text-transform:uppercase; margin-bottom:8px; }
+  h1{ font-family:'Fraunces', serif; font-weight:600; color:#241E1A; font-size: 34px; line-height:1.12; margin:0 0 8px; letter-spacing:-0.01em; }
+  header p{ color:var(--ink-soft); max-width:600px; margin:0; font-size:14.5px; line-height:1.6; }
+  .info-toggle{ font-family:'Inter', sans-serif; font-size:13px; font-weight:600; color:#fff; background:var(--maroon); border:none; border-radius:8px; padding:10px 16px; cursor:pointer; white-space:nowrap; }
+  .info-toggle:hover{ background:var(--maroon-deep); }
+
+  .disclaimer{
+    background: var(--maroon-tint);
+    border:1px solid #E3C9C4;
+    border-radius:12px;
+    padding:12px 16px;
+    color:#5E2125;
+    font-size:12.5px;
+    line-height:1.6;
+    margin-bottom:22px;
+  }
+  .disclaimer strong{ color:#4A191D; }
+
+  #rules{ display:none; background: var(--bg-soft); border:1px solid var(--panel-line); border-radius:14px; padding:20px 22px; margin-bottom:26px; color:var(--ink); font-size:13.5px; line-height:1.6; box-shadow: 0 1px 3px rgba(43,36,31,0.05); }
+  #rules.show{ display:block; }
+  #rules h3{ font-family:'Fraunces', serif; font-weight:600; color:#241E1A; font-size:16px; margin:16px 0 10px; }
+  #rules h3:first-child{ margin-top:0; }
+  #rules table{ border-collapse:collapse; width:100%; margin:10px 0 16px; font-size:12.5px; }
+  #rules th, #rules td{ padding:7px 10px; text-align:left; border-bottom:1px solid var(--panel-line); }
+  #rules th{ color:var(--ink-soft); font-weight:600; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.03em; text-transform:uppercase; }
+  #rules td.num{ font-family:'JetBrains Mono',monospace; }
+
+  /* Program strip */
+  .program-strip{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    font-size:12.5px; color:var(--ink-soft);
+    background: var(--bg-soft); border:1px solid var(--panel-line); border-radius:12px;
+    padding:10px 16px; margin-bottom:16px;
+    box-shadow: 0 1px 3px rgba(43,36,31,0.04);
+  }
+  .program-strip b{ color:var(--maroon); }
+  .program-strip .sep{ color:#C4BBAB; font-weight:700; }
+
+  /* Period selector */
+  .period-bar{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    background: var(--bg-soft); border:1px solid var(--panel-line); border-radius:14px;
+    padding:14px 18px; margin-bottom:22px;
+    box-shadow: 0 1px 3px rgba(43,36,31,0.04);
+  }
+  .period-bar .grp{ display:flex; align-items:center; gap:8px; }
+  .period-bar label{ font-family:'JetBrains Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); }
+  .period-bar select, .period-bar input{
+    background:#FBF9F4; color:var(--ink); border:1px solid var(--panel-line); border-radius:8px;
+    padding:7px 10px; font-family:'Inter',sans-serif; font-size:12.5px;
+  }
+  .period-bar .arrow{ color:#B9AF9C; font-size:13px; }
+  .period-fixed{ font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--maroon); background:var(--maroon-tint); border-radius:8px; padding:6px 12px; }
+  .mode-switch{ display:flex; border:1px solid var(--panel-line); border-radius:8px; overflow:hidden; }
+  .mode-btn{ background:#FBF9F4; border:none; padding:7px 12px; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer; }
+  .mode-btn.active{ background:var(--maroon); color:#fff; }
+
+  /* Mobile adjustments */
+  @media (max-width: 860px){
+    .ladder{ display:none; }
+  }
+  @media (max-width: 700px){
+    .wrap{ padding: 16px 10px 60px; }
+    h1{ font-size: 24px; }
+    header p{ font-size: 13px; }
+    .period-bar{ padding: 10px 12px; gap: 8px; }
+    .period-bar .ghost-btn{ margin-left: 0 !important; }
+    .card .value{ font-size: 19px; }
+    .card.total .value{ font-size: 20px; }
+
+    /* Card-per-month layout: table becomes stacked blocks */
+    .table-scroll{ overflow-x: visible; }
+    table.ledger{ display:block; min-width:0 !important; }
+    table.ledger thead{ display:none; }
+    table.ledger tbody{ display:block; }
+    table.ledger tr{ display:block; border:1px solid var(--panel-line); border-radius:12px; margin:10px 12px; padding:4px 14px 8px; background:#fff; }
+    table.ledger td{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px 12px; padding:9px 0; border-bottom:1px dashed var(--panel-line); position:static !important; box-shadow:none !important; }
+    table.ledger td:last-child{ border-bottom:none; }
+    table.ledger td::before{ content: attr(data-label); font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); flex-shrink:0; }
+    table.ledger td .cell-sub, table.ledger td .detected-cat{ flex-basis:100%; text-align:right; max-width:none; }
+    table.ledger td.month-cell{ display:block; font-family:'Fraunces',serif; font-weight:600; font-size:15px; padding:10px 0 6px; border-bottom:2px solid var(--ink); }
+    table.ledger td.month-cell::before{ content:none; }
+    table.ledger td.row-total{ background:#FBF7EF; margin:4px -14px -8px; padding:10px 14px; border-radius:0 0 11px 11px; }
+    .cell-sub{ text-align:right; }
+    table.ledger tfoot{ display:block; }
+    table.ledger tfoot tr{ display:flex; justify-content:space-between; align-items:center; border:none; background:var(--maroon); color:#fff; }
+    table.ledger tfoot td{ border:none; color:#fff; padding:4px 0; }
+    table.ledger tfoot td::before{ content:none; }
+    select.tier-select{ width: 100%; max-width:190px; font-size: 12px; }
+    .amount-input{ width: 100%; max-width:160px; font-size: 12px; }
+    .detected-cat{ text-align:right; }
+    table.ledger td[data-label="Eligible Sales (Rp)"]{ flex-wrap:wrap; }
+  }
+
+  .summary{ display:grid; grid-template-columns: repeat(3,1fr); gap:14px; margin-bottom:20px; }
+  @media (max-width:640px){ .summary{ grid-template-columns:1fr; } }
+  .card{ background: var(--panel); border-radius:14px; padding:18px 20px; border:1px solid var(--panel-line); box-shadow: 0 1px 3px rgba(43,36,31,0.04); }
+  .card .label{ font-family:'JetBrains Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-soft); margin-bottom:8px; }
+  .card .value{ font-family:'Fraunces', serif; font-weight:600; font-size:22px; letter-spacing:-0.01em; }
+  .card.total{ background: var(--maroon); border-color: var(--maroon-deep); }
+  .card.total .label{ color:#E9CFCF; }
+  .card.total .value{ color:#fff; font-size:24px; }
+  .card.highlight{ background: #F3E9D2; border-color:#E3CE9A; }
+  .card.highlight .label{ color:#7A5E1E; }
+  .card.highlight .value{ color:#8A5A12; }
+  .sub-breakdown{ display:flex; flex-direction:column; gap:2px; margin-top:8px; padding-top:8px; border-top:1px dashed #E3CE9A; font-size:11px; color:#7A6A3E; }
+  .sub-breakdown b{ font-family:'JetBrains Mono',monospace; font-weight:600; }
+
+  .section-title{
+    display:flex; align-items:center; gap:10px; margin: 26px 0 12px;
+  }
+  .section-title h2{ font-family:'Fraunces',serif; font-weight:600; color:#241E1A; font-size:18px; margin:0; }
+  .section-title .tag{
+    font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); border:1px solid var(--panel-line); border-radius:100px; padding:3px 9px;
+  }
+
+  .layout{ display:grid; grid-template-columns: 230px 1fr; gap: 22px; align-items:start; }
+  @media (max-width: 860px){ .layout{ grid-template-columns: 1fr; } }
+
+  .ladder{ position:sticky; top:20px; background: var(--bg-soft); border:1px solid var(--panel-line); border-radius:16px; padding:20px 16px; box-shadow: 0 1px 3px rgba(43,36,31,0.04); }
+  .ladder h4{ font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 14px; text-align:center; }
+  .rung{ position:relative; display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; margin-bottom:6px; font-size:12px; font-weight:600; color:#B9AF9C; background: #FBF9F4; transition: all .2s ease; }
+  .rung .dot{ width:9px; height:9px; border-radius:50%; background: currentColor; flex-shrink:0; }
+  .rung.reached{ color:#241E1A; background: var(--dot-color); }
+  .rung.reached .dot{ background:#fff; }
+  .ladder-foot{ margin-top:14px; padding-top:14px; border-top:1px dashed var(--panel-line); font-size:11px; color:var(--ink-soft); line-height:1.5; }
+
+  .ledger-wrap{ background: var(--panel); border-radius:16px; border:1px solid var(--panel-line); overflow:hidden; box-shadow: 0 1px 3px rgba(43,36,31,0.04); }
+  .table-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .ledger-head{ display:flex; justify-content:space-between; align-items:center; padding:16px 18px 12px; }
+  .ledger-head h3{ font-family:'Fraunces',serif; font-weight:600; font-size:16px; margin:0; }
+  .add-btn{ font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; background: var(--ink); color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; }
+  .add-btn:hover{ background:#000; }
+
+  table.ledger{ width:100%; border-collapse:collapse; font-size:12.5px; table-layout:auto; }
+  table.ledger th{ text-align:left; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); padding:8px 10px; border-bottom:1px solid var(--panel-line); white-space:nowrap; }
+  table.ledger td{ padding:9px 10px; border-bottom:1px solid var(--panel-line); vertical-align:middle; }
+  table.ledger tr.na td{ color:#B9AF9C; font-style:italic; }
+  table.ledger tbody tr:hover{ background: #FBF9F4; }
+  table.ledger th:first-child, table.ledger td:first-child{
+    position:sticky; left:0; background: var(--panel); box-shadow: 1px 0 0 var(--panel-line);
+  }
+  table.ledger th:last-child, table.ledger td:last-child{
+    position:sticky; right:0; background: var(--panel); box-shadow: -1px 0 0 var(--panel-line);
+  }
+  table.ledger tbody tr:hover td:last-child{ background: #FBF9F4; }
+  tfoot td:last-child{ background: var(--panel); }
+  select.tier-select{ width:170px; border:1px solid var(--panel-line); border-radius:6px; padding:6px 8px; font-family:'Inter',sans-serif; font-size:12.5px; background:#fff; color:var(--ink); }
+  select.tier-select-preprogram{ border-style:dashed; color:var(--ink-soft); background:#FBF9F4; }
+  .amount-input{ width:140px; border:1px solid var(--panel-line); border-radius:6px; padding:6px 8px; font-family:'JetBrains Mono',monospace; font-size:12px; background:#fff; color:var(--ink); }
+  .amount-input::placeholder{ color:#C4BBAB; font-family:'Inter',sans-serif; font-size:11px; }
+  .detected-cat{ font-size:10.5px; color:#1D7A5C; font-weight:600; margin-top:3px; white-space:nowrap; }
+  .detected-cat.dim{ color:#B9AF9C; font-weight:400; }
+  .cell-sub{ font-size:10px; color:var(--ink-soft); font-weight:400; margin-top:3px; line-height:1.4; white-space:normal; max-width:180px; }
+  .threshold-hint{ font-size:11px; color:var(--ink-soft); padding:0 18px 10px; }
+  .threshold-hint b{ color:var(--maroon); font-family:'JetBrains Mono',monospace; font-weight:600; }
+  .num{ font-family:'JetBrains Mono',monospace; font-size:12.5px; white-space:nowrap; }
+  .num.zero{ color:#C4BBAB; }
+  .badge-rate{
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase;
+    letter-spacing:.03em; padding:2px 7px; border-radius:100px; white-space:nowrap;
+  }
+  .badge-rate.base{ background:#EFE9DC; color:#7A6A3E; }
+  .badge-rate.addendum{ background:#E4F4EE; color:#1D7A5C; }
+
+  tfoot td{ padding:14px 10px; font-weight:700; font-family:'JetBrains Mono',monospace; border-top:2px solid var(--ink); }
+  .foot-actions{ display:flex; justify-content:flex-end; gap:10px; padding:14px 18px 4px; }
+  .ghost-btn{ background:none; border:1px solid var(--panel-line); color:var(--ink-soft); font-family:'Inter',sans-serif; font-size:12px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer; }
+  .ghost-btn:hover{ border-color:var(--ink-soft); color:var(--ink); }
+
+  .empty-note{ padding:26px 18px; text-align:center; color:var(--ink-soft); font-size:13px; }
+
+  footer.page-footer{ text-align:center; color:#B9AF9C; font-size:11px; margin-top:30px; font-family:'JetBrains Mono',monospace; letter-spacing:.04em; }
+
+  @media print{
+    @page{ size: landscape; margin: 12mm; }
+    *{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body{ background:#fff; }
+    .info-toggle, .ghost-btn, .mode-switch{ display:none !important; }
+    .layout{ grid-template-columns: 1fr; }
+    .ladder{ display:none; }
+    header p, .eyebrow{ color:#333; }
+    h1{ color:#000; }
+    select.tier-select, .amount-input{
+      appearance:none; -webkit-appearance:none; border:none; background:none;
+      padding:2px 0; font-size:11px; color:#000; width:auto;
+    }
+    .table-scroll{ overflow-x:visible !important; }
+    table.ledger{ min-width:0 !important; width:100%; font-size:10px; }
+    table.ledger th, table.ledger td{ padding:4px 6px; }
+    table.ledger th:first-child, table.ledger td:first-child,
+    table.ledger th:last-child, table.ledger td:last-child{ position:static !important; box-shadow:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">IMCD · Additional Sales Rewards</div>
+      <h1>Simulasi Reward Tambahan</h1>
+      <p>Simulator ini membantu sales menghitung reward <strong>tambahan (additional)</strong> di luar Sales Performance Reward utama (rank bulanan/quarterly/yearly). Periode simulasi: <strong>Juni – Desember 2026</strong>. Masukkan Eligible Sales (atau kategori) per bulan dan hasilnya terhitung otomatis.</p>
+    </div>
+    <button class="info-toggle" onclick="toggleRules()">Lihat Ketentuan &amp; Nominal</button>
+  </header>
+
+  <div class="disclaimer">
+    <strong>Catatan penting:</strong> Hasil perhitungan bersifat <strong>simulasi dan estimasi</strong>, tidak mengikat sebagai dasar pembayaran reward. Program dapat diperpanjang dan dihentikan sewaktu-waktu sesuai kebijakan dari Manajemen. Untuk angka final perhitungan, tetap berdasarkan hasil proses Commission IMCD.
+  </div>
+
+  <div id="rules">
+    <h3>A. Additional Sales Executive — Climb &amp; Repeat (Produk Park Serpong — Free Fight)</h3>
+    <p>Berlaku efektif untuk perhitungan mulai <strong>Juni 2026</strong> (IM 0039/IMCD/VII/2026). Climb diberikan saat pertama kali mencapai tier baru yang lebih tinggi dari tier tertinggi sebelumnya (maks 1x/tier). Repeat dihitung dari pencapaian tier sama berturut-turut, mulai bulan ke-2, reset jika tier berubah atau ada bulan kosong.</p>
+    <table>
+      <tr><th>Tier</th><th>Reward Climb</th><th>Reward Repeat /bln</th></tr>
+      <tr><td>Productive</td><td class="num">Rp 2.500.000</td><td class="num">Rp 1.000.000</td></tr>
+      <tr><td>Elite</td><td class="num">Rp 5.000.000</td><td class="num">Rp 3.000.000</td></tr>
+      <tr><td>Superstar</td><td class="num">Rp 10.000.000</td><td class="num">Rp 4.000.000</td></tr>
+      <tr><td>Champion (≤300%)</td><td class="num">Rp 15.000.000</td><td class="num">Rp 6.000.000</td></tr>
+      <tr><td>Legend (&gt;300%)</td><td class="num">Rp 20.000.000</td><td class="num">Rp 10.000.000</td></tr>
+    </table>
+
+    <h3>B. Additional Monthly Sales Reward (Produk Park Serpong)</h3>
+    <p>Klasifikasi berdasarkan % pencapaian terhadap monthly target (Min. Target Rp 1.100.000.000). Nominal dasar berlaku sejak Januari 2026 (IM 8721/SALES/XII/2025); top-up +50% ("Additional Reward") berlaku efektif mulai <strong>April 2026</strong> (Addendum IM 0024/IMCD/IV/2026). Masukkan Eligible Sales aktual — kategori terdeteksi otomatis dari nominal berikut:</p>
+    <table>
+      <tr><th>Kategori</th><th>% Target</th><th>Ambang Eligible Sales (Rp)</th><th>Sebelum Apr 2026</th><th>Apr 2026 dst</th></tr>
+      <tr><td>Productive</td><td>100%–150%</td><td class="num">≥ 1.100.000.000</td><td class="num">Rp 2.000.000</td><td class="num">Rp 3.000.000</td></tr>
+      <tr><td>Elite</td><td>150%–200%</td><td class="num">≥ 1.650.000.000</td><td class="num">Rp 3.000.000</td><td class="num">Rp 4.500.000</td></tr>
+      <tr><td>Super</td><td>200%–250%</td><td class="num">≥ 2.200.000.000</td><td class="num">Rp 5.000.000</td><td class="num">Rp 7.500.000</td></tr>
+      <tr><td>Champion</td><td>250%–300%</td><td class="num">≥ 2.750.000.000</td><td class="num">Rp 10.000.000</td><td class="num">Rp 15.000.000</td></tr>
+      <tr><td>Legend</td><td>&gt;300%</td><td class="num">&gt; 3.300.000.000</td><td class="num">Rp 10.000.000</td><td class="num">Rp 15.000.000</td></tr>
+    </table>
+
+    <h3>C. Additional Quarterly Sales Reward (Produk Park Serpong)</h3>
+    <p>Dihitung otomatis dari jumlah Eligible Sales 3 bulan per calendar quarter (Min. Quarterly Target Rp 3.300.000.000). Top-up +50% <strong>tidak berlaku</strong> untuk quarterly — hanya untuk Additional Monthly SE. Reward per kategori:</p>
+    <table>
+      <tr><th>Kategori</th><th>% Target</th><th>Ambang Eligible Sales / Quarter (Rp)</th><th>Reward</th></tr>
+      <tr><td>Productive</td><td>100%–150%</td><td class="num">≥ 3.300.000.000</td><td class="num">Rp 3.300.000</td></tr>
+      <tr><td>Elite</td><td>150%–200%</td><td class="num">≥ 4.950.000.000</td><td class="num">Rp 4.950.000</td></tr>
+      <tr><td>Super</td><td>200%–250%</td><td class="num">≥ 6.600.000.000</td><td class="num">Rp 8.250.000</td></tr>
+      <tr><td>Champion</td><td>≥250%</td><td class="num">≥ 8.250.000.000</td><td class="num">Rp 16.500.000</td></tr>
+    </table>
+  </div>
+
+  <div class="program-strip">
+    <span><b>Fondasi</b> — Park Serpong Monthly (aktif Jan 2026 · top-up +50% mulai Apr 2026)</span>
+    <span class="sep">+</span>
+    <span><b>Booster</b> — SE Climb &amp; Repeat — Free Fight (mulai Jun 2026)</span>
+  </div>
+
+  <div class="period-bar">
+    <div class="grp">
+      <label>Periode</label>
+      <span class="period-fixed">Jun – Des 2026</span>
+    </div>
+    <div class="grp">
+      <label>Input PS</label>
+      <div class="mode-switch">
+        <button id="modeAmount" class="mode-btn active" onclick="setInputMode('amount')">Nominal Sales</button>
+        <button id="modeCategory" class="mode-btn" onclick="setInputMode('category')">Kategori</button>
+      </div>
+    </div>
+        <button class="ghost-btn" onclick="loadSample()" style="margin-left:auto;">Muat Contoh</button>
+    <button class="ghost-btn" onclick="clearAllData()">Reset</button>
+    <button class="ghost-btn" onclick="doPrint()">Cetak / Simpan PDF</button>
+  </div>
+
+  <div class="summary">
+    <div class="card">
+      <div class="label">Reward Utama (Additional + Quarterly)</div>
+      <div class="value" id="sumBase">Rp 0</div>
+      <div class="sub-breakdown">
+        <span>Additional Monthly: <b id="sumMonthly">Rp 0</b></span>
+        <span>Quarterly: <b id="sumQ">Rp 0</b></span>
+      </div>
+    </div>
+    <div class="card highlight">
+      <div class="label">Nilai Tambahan (+50% &amp; Booster)</div>
+      <div class="value" id="sumAdditional">Rp 0</div>
+      <div class="sub-breakdown">
+        <span>+50% Addendum: <b id="sumAddendum">Rp 0</b></span>
+        <span>Climb &amp; Repeat: <b id="sumSE">Rp 0</b></span>
+      </div>
+    </div>
+    <div class="card total"><div class="label">Total Keseluruhan</div><div class="value" id="sumTotal">Rp 0</div></div>
+  </div>
+
+  <div id="combinedSection"></div>
+
+  <footer class="page-footer">SIMULASI INTERNAL — ANGKA FINAL MENGACU PADA KEBIJAKAN SALES OPS</footer>
+</div>
+
+<script>
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const SE_TIERS = [
+  { key:'-', label:'— Belum tercapai', rank:0, color:'var(--c-none)', climb:0, repeat:0 },
+  { key:'productive', label:'Productive', rank:1, color:'var(--c-productive)', climb:2500000, repeat:1000000 },
+  { key:'elite', label:'Elite', rank:2, color:'var(--c-elite)', climb:5000000, repeat:3000000 },
+  { key:'superstar', label:'Superstar', rank:3, color:'var(--c-superstar)', climb:10000000, repeat:4000000 },
+  { key:'champ1', label:'Champion (≤300%)', rank:4, color:'var(--c-champ1)', climb:15000000, repeat:6000000 },
+  { key:'champ2', label:'Legend (>300%)', rank:5, color:'var(--c-champ2)', climb:20000000, repeat:10000000 },
+];
+const PS_TIERS = [
+  { key:'-', label:'— Belum tercapai', base:0, addendum:0 },
+  { key:'productive', label:'Productive (100–150%)', base:2000000, addendum:1000000 },
+  { key:'elite', label:'Elite (150–200%)', base:3000000, addendum:1500000 },
+  { key:'super', label:'Super (200–250%)', base:5000000, addendum:2500000 },
+  { key:'champion', label:'Champion (250–300%)', base:10000000, addendum:5000000 },
+  { key:'legend', label:'Legend (>300%)', base:10000000, addendum:5000000 },
+];
+// Min. Monthly Target for Park Serpong = Rp 1,100,000,000 (100%). Bands below are that value x 1.0 / 1.5 / 2.0 / 2.5
+const PS_MIN_TARGET = 1100000000;
+const PS_THRESHOLDS = {
+  productive: PS_MIN_TARGET * 1.0,   // 1,100,000,000
+  elite: PS_MIN_TARGET * 1.5,        // 1,650,000,000
+  super: PS_MIN_TARGET * 2.0,        // 2,200,000,000
+  champion: PS_MIN_TARGET * 2.5,     // 2,750,000,000
+};
+function categorizePS(amount){
+  if (!amount || amount < PS_THRESHOLDS.productive) return '-';
+  if (amount < PS_THRESHOLDS.elite) return 'productive';
+  if (amount < PS_THRESHOLDS.super) return 'elite';
+  if (amount < PS_THRESHOLDS.champion) return 'super';
+  if (amount <= PS_MIN_TARGET * 3.0) return 'champion';
+  return 'legend';
+}
+// Free Fight (SE Climb & Repeat) tiers on the same Rp 1.1B monthly target:
+// Productive 100% · Elite 150% · Superstar 200% · Champion 250–300% · Legend >300%
+function categorizeSE(amount){
+  if (!amount || amount < PS_MIN_TARGET) return '-';
+  if (amount < PS_MIN_TARGET * 1.5) return 'productive';
+  if (amount < PS_MIN_TARGET * 2.0) return 'elite';
+  if (amount < PS_MIN_TARGET * 2.5) return 'superstar';
+  if (amount <= PS_MIN_TARGET * 3.0) return 'champ1';
+  return 'champ2';
+}
+const SE_EFFECTIVE = 2026*12 + 6;  // June 2026
+const PS_ADDENDUM_EFFECTIVE = 2026*12 + 4; // April 2026
+// Additional Quarterly Sales Reward (SE, Park Serpong). Min. Quarterly Target Rp 3.300.000.000 (100%)
+const Q_TIERS = [
+  { key:'champion',   label:'Champion (≥250%)',      min: 8250000000, reward: 16500000 },
+  { key:'super',      label:'Super (200–250%)',      min: 6600000000, reward: 8250000 },
+  { key:'elite',      label:'Elite (150–200%)',      min: 4950000000, reward: 4950000 },
+  { key:'productive', label:'Productive (100–150%)', min: 3300000000, reward: 3300000 },
+];
+function categorizeQ(amount){
+  for (const t of Q_TIERS){ if (amount >= t.min) return t; }
+  return null;
+}
+
+const seTierByKey = k => SE_TIERS.find(t => t.key === k);
+const psTierByKey = k => PS_TIERS.find(t => t.key === k);
+const monthKey = (y,m) => y*12 + m;
+const fmt = n => 'Rp ' + n.toLocaleString('id-ID');
+
+let programs = { se: true, ps: true };
+let inputMode = 'amount'; // 'amount' | 'category'
+function setInputMode(mode){
+  inputMode = mode;
+  if (mode === 'amount'){
+    // re-derive everything from the typed amounts so display stays consistent
+    getMonthList().forEach(m => {
+      const amt = parseAmount(psAmountData[m.key]);
+      psData[m.key] = categorizePS(amt);
+      seData[m.key] = categorizeSE(amt);
+    });
+  }
+  document.getElementById('modeAmount').classList.toggle('active', mode==='amount');
+  document.getElementById('modeCategory').classList.toggle('active', mode==='category');
+  render();
+}
+let seData = {};
+let psData = {};
+let psAmountData = {};
+
+// Fixed simulation period: Jun – Dec 2026
+function getMonthList(){
+  const list = [];
+  for(let m = 6; m <= 12; m++){
+    list.push({ year:2026, month:m, key: monthKey(2026,m), label: MONTH_NAMES[m-1]+' 2026' });
+  }
+  return list;
+}
+
+function syncDataToMonths(months){
+  months.forEach(m => {
+    if (!(m.key in seData)) seData[m.key] = '-';
+    if (!(m.key in psData)) psData[m.key] = '-';
+    if (!(m.key in psAmountData)) psAmountData[m.key] = '';
+  });
+}
+
+function clearAllData(){
+  seData = {}; psData = {}; psAmountData = {};
+  syncDataToMonths(getMonthList());
+  render();
+}
+
+function updateSETier(key, val){ seData[key] = val; render(); }
+function updatePSTier(key, val){ psData[key] = val; render(); }
+function formatThousands(digits){
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function updatePSAmount(key, val){
+  const digits = val.replace(/[^0-9]/g, '');
+  const amount = parseInt(digits, 10) || 0;
+  psAmountData[key] = digits ? formatThousands(digits) : '';
+  psData[key] = categorizePS(amount);
+  seData[key] = categorizeSE(amount);
+  render();
+  const el = document.getElementById('amt-' + key);
+  if (el){
+    el.focus();
+    const end = el.value.length;
+    el.setSelectionRange(end, end);
+  }
+}
+
+function computeSE(months){
+  let maxRank = 0, prevTier = null, repeatCount = 0, hasPrevMonth = false;
+  let total = 0;
+  const rows = [];
+  months.forEach(m => {
+    if (m.key < SE_EFFECTIVE){
+      rows.push({ ...m, na:true });
+      return;
+    }
+    const tKey = seData[m.key] || '-';
+    const t = seTierByKey(tKey);
+    let climbAmt = 0, repeatAmt = 0, notes = [];
+    if (t.key === '-'){
+      repeatCount = 0; prevTier = null; hasPrevMonth = true;
+      notes.push('Tidak ada pencapaian');
+    } else {
+      if (t.rank > maxRank){
+        climbAmt = t.climb; maxRank = t.rank;
+        notes.push('Climb: tier baru');
+      } else {
+        notes.push('Tidak ada Climb');
+      }
+      if (prevTier === t.key){
+        repeatCount = Math.min(repeatCount+1, 6);
+      } else {
+        repeatCount = 1;
+      }
+      if (repeatCount >= 2){
+        repeatAmt = t.repeat; notes.push(`Repeat ${repeatCount}x`);
+      } else if (!hasPrevMonth){
+        notes.push('Pencapaian awal');
+      } else {
+        notes.push('Repeat reset (tier beda/jeda)');
+      }
+      hasPrevMonth = true;
+      prevTier = t.key;
+    }
+    const monthTotal = climbAmt + repeatAmt;
+    total += monthTotal;
+    rows.push({ ...m, tier:tKey, tierObj:t, climbAmt, repeatAmt, repeatCount: t.key==='-'?0:repeatCount, monthTotal, notes: notes.join(' · ') });
+  });
+  return { rows, total, maxRank };
+}
+
+function parseAmount(val){
+  return parseInt(String(val||'').replace(/[^0-9]/g, ''), 10) || 0;
+}
+function computeQuarterly(months){
+  const quarters = {};
+  months.forEach(m => {
+    const q = Math.ceil(m.month/3);
+    const qk = m.year + '-Q' + q;
+    if (!quarters[qk]) quarters[qk] = { label: 'Q'+q+' '+m.year, total: 0, monthCount: 0 };
+    quarters[qk].total += parseAmount(psAmountData[m.key]);
+    quarters[qk].monthCount++;
+  });
+  let total = 0;
+  const rows = Object.keys(quarters).sort().map(qk => {
+    const q = quarters[qk];
+    const tier = categorizeQ(q.total);
+    const reward = tier ? tier.reward : 0;
+    total += reward;
+    return { ...q, tier, reward };
+  });
+  return { rows, total };
+}
+
+function computePS(months){
+  let total = 0, baseTotal = 0, addendumTotal = 0;
+  const rows = [];
+  months.forEach(m => {
+    const tKey = psData[m.key] || '-';
+    const t = psTierByKey(tKey);
+    const isAddendum = m.key >= PS_ADDENDUM_EFFECTIVE;
+    const base = t.key === '-' ? 0 : t.base;
+    const addendum = (t.key === '-' || !isAddendum) ? 0 : t.addendum;
+    const amount = base + addendum;
+    total += amount; baseTotal += base; addendumTotal += addendum;
+    rows.push({ ...m, tier:tKey, tierObj:t, amount, isAddendum });
+  });
+  return { rows, total, baseTotal, addendumTotal };
+}
+
+function renderCombinedSection(months){
+  const el = document.getElementById('combinedSection');
+  const se = programs.se ? computeSE(months) : null;
+  const ps = programs.ps ? computePS(months) : null;
+
+  if (!se && !ps){
+    el.innerHTML = `<div class="ledger-wrap"><div class="empty-note">Aktifkan minimal satu program di atas untuk mulai simulasi.</div></div>`;
+    return { seTotal:0, psTotal:0 };
+  }
+
+  const psByKey = {};
+  if (ps) ps.rows.forEach(r => { psByKey[r.key] = r; });
+  const seByKey = {};
+  if (se) se.rows.forEach(r => { seByKey[r.key] = r; });
+
+  const bodyHtml = months.length===0 ? `<tr><td colspan="7" class="empty-note">Masukkan data bulanan untuk mulai.</td></tr>` : months.map(m => {
+    const r = seByKey[m.key];
+    const p = psByKey[m.key];
+    let rowTotal = 0;
+    let seCells = '';
+    if (se && r){
+      rowTotal += r.monthTotal;
+      const boosterTotal = r.climbAmt + r.repeatAmt;
+      const parts = [];
+      if (r.climbAmt > 0) parts.push(`Climb ${fmt(r.climbAmt)}`);
+      if (r.repeatAmt > 0) parts.push(`Repeat ${r.repeatCount}x ${fmt(r.repeatAmt)}`);
+      const boosterCell = boosterTotal > 0
+        ? `${fmt(boosterTotal)}<div class="cell-sub">${parts.join(' · ')}</div>`
+        : `—`;
+      const tierControl = inputMode === 'amount'
+        ? (r.tierObj.key !== '-'
+            ? `<span style="font-weight:600;">${r.tierObj.label}</span>`
+            : `<span style="color:#C4BBAB;">—</span>`)
+        : `<select class="tier-select" onchange="updateSETier(${m.key}, this.value)">
+            ${SE_TIERS.map(t=>`<option value="${t.key}" ${t.key===r.tier?'selected':''}>${t.label}</option>`).join('')}
+          </select>`;
+      seCells = `
+        <td data-label="Tier Free Fight">${tierControl}<div class="cell-sub">${r.notes}</div></td>
+        <td data-label="Reward Booster" class="num ${boosterTotal===0?'zero':''}">${boosterCell}</td>
+      `;
+    }
+
+    let psCells = '';
+    if (ps && p){
+      rowTotal += p.amount;
+      const amtVal = psAmountData[m.key] || '';
+      const hasAddendum = p.tierObj.key !== '-' && p.isAddendum;
+      const rateBadge = p.tierObj.key === '-' ? '' : (hasAddendum
+        ? `<span class="badge-rate addendum">+50% addendum</span>`
+        : `<span class="badge-rate base">rate dasar</span>`);
+      let firstCells = '';
+      if (inputMode === 'amount'){
+        const detectedLabel = (amtVal && p.tierObj.key !== '-') ? `<div class="detected-cat">→ ${p.tierObj.label}</div>` : (amtVal ? `<div class="detected-cat dim">→ di bawah target min.</div>` : '');
+        firstCells = `
+          <td data-label="Eligible Sales (Rp)"><input type="text" inputmode="numeric" id="amt-${m.key}" class="amount-input" placeholder="cth. 2.000.000.000" value="${amtVal}" oninput="updatePSAmount(${m.key}, this.value)">${detectedLabel}</td>
+          <td data-label="Kategori">${p.tierObj.key !== '-' ? p.tierObj.label : '<span style="color:#C4BBAB;">—</span>'}${rateBadge ? `<div style="margin-top:3px;">${rateBadge}</div>` : ''}</td>
+        `;
+      } else {
+        firstCells = `
+          <td colspan="2" data-label="Kategori PS"><select class="tier-select" onchange="updatePSTier(${m.key}, this.value)">
+            ${PS_TIERS.map(t=>`<option value="${t.key}" ${t.key===p.tier?'selected':''}>${t.label}</option>`).join('')}
+          </select>${rateBadge ? `<div style="margin-top:3px;">${rateBadge}</div>` : ''}</td>
+        `;
+      }
+      const rewardCell = p.amount > 0
+        ? `${fmt(p.amount)}${hasAddendum ? `<div class="cell-sub">${fmt(p.tierObj.base)} + ${fmt(p.tierObj.addendum)} (50%)</div>` : ''}`
+        : '—';
+      psCells = `
+        ${firstCells}
+        <td data-label="Reward Fondasi" class="num ${p.amount===0?'zero':''}">${rewardCell}</td>
+      `;
+    }
+
+    return `<tr>
+      <td class="month-cell">${m.label}</td>
+      ${seCells}
+      ${psCells}
+      <td data-label="Total Bulan" class="num row-total" style="font-weight:600;">${fmt(rowTotal)}</td>
+    </tr>`;
+  }).join('');
+
+  const seHead = se ? `<th>Tier SE (Free Fight)</th><th>Reward Booster</th>` : '';
+  const psHead = ps ? (inputMode === 'amount'
+    ? `<th>Eligible Sales (Rp)</th><th>Kategori</th><th>Reward Fondasi</th>`
+    : `<th colspan="2">Kategori PS (Park Serpong)</th><th>Reward Fondasi</th>`) : '';
+
+  const rungsHtml = se ? SE_TIERS.filter(t=>t.key!=='-').slice().reverse().map(t=>{
+    const reached = t.rank <= se.maxRank;
+    return `<div class="rung ${reached?'reached':''}" style="--dot-color:${t.color}; color:${reached?t.color:''}"><span class="dot"></span>${t.label}</div>`;
+  }).join('') : '';
+
+  const ladderHtml = se ? `
+    <div class="ladder">
+      <h4>Tier Tertinggi (Booster)</h4>
+      <div>${rungsHtml}</div>
+      <div class="ladder-foot">${se.maxRank===0 ? 'Belum ada pencapaian.' : 'Reward Climb tier ini sudah terpakai — hanya berlaku untuk tier di atasnya.'}</div>
+    </div>
+  ` : '';
+
+  const tableHtml = `
+    <div class="ledger-wrap">
+      <div class="ledger-head"><h3>Riwayat Bulanan — Reward Fondasi &amp; Booster</h3></div>
+      ${inputMode==='amount' ? `<div class="threshold-hint">Ambang bulanan: <b>≥1,1 M</b> Productive · <b>≥1,65 M</b> Elite · <b>≥2,2 M</b> Super/Superstar · <b>≥2,75 M</b> Champion · <b>&gt;3,3 M</b> Legend</div>` : ''}
+      <div class="table-scroll">
+        <table class="ledger">
+          <thead><tr><th>Bulan</th>${seHead}${psHead}<th>Total Bulan</th></tr></thead>
+          <tbody>${bodyHtml}</tbody>
+          <tfoot><tr><td colspan="${1+(se?2:0)+(ps?3:0)}">TOTAL KESELURUHAN</td><td class="num">${fmt((se?se.total:0)+(ps?ps.total:0))}</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  `;
+
+  const qr = inputMode === 'amount' ? computeQuarterly(months) : { rows: [], total: 0 };
+  const qBody = qr.rows.map(q => `
+    <tr>
+      <td class="month-cell">${q.label}</td>
+      <td data-label="Total Eligible Sales" class="num">${q.total>0?fmt(q.total):'—'}</td>
+      <td data-label="Kategori">${q.tier ? q.tier.label : '<span style="color:#B9AF9C;">Di bawah target min. (Rp 3,3 M)</span>'}</td>
+      <td data-label="Reward Quarterly" class="num ${q.reward===0?'zero':''}">${q.reward>0?fmt(q.reward):'—'}</td>
+    </tr>
+  `).join('');
+  const qEmptyNote = inputMode === 'amount'
+    ? 'Isi Eligible Sales bulanan di atas — total per quarter dihitung otomatis.'
+    : 'Quarterly dihitung dari nominal Eligible Sales — ganti Input PS ke mode "Nominal Sales" untuk menghitung reward quarterly.';
+  const quarterlyHtml = `
+    <div class="ledger-wrap" style="margin-top:18px;">
+      <div class="ledger-head"><h3>Additional Quarterly (Park Serpong)</h3></div>
+      <div class="table-scroll">
+        <table class="ledger" style="min-width:0;">
+          <thead><tr><th>Quarter</th><th>Total Eligible Sales</th><th>Kategori</th><th>Reward Quarterly</th></tr></thead>
+          <tbody>${qBody || `<tr><td colspan="4" class="empty-note">${qEmptyNote}</td></tr>`}</tbody>
+          <tfoot><tr><td colspan="3">TOTAL QUARTERLY</td><td class="num">${fmt(qr.total)}</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  `;
+
+  el.innerHTML = (se ? `<div class="layout">${ladderHtml}${tableHtml}</div>` : tableHtml) + quarterlyHtml;
+
+  return { seTotal: se?se.total:0, psBaseTotal: ps?ps.baseTotal:0, psAddendumTotal: ps?ps.addendumTotal:0, qTotal: qr.total };
+}
+
+function render(){
+  const months = getMonthList();
+  const { seTotal, psBaseTotal, psAddendumTotal, qTotal } = renderCombinedSection(months);
+  const mainTotal = (psBaseTotal||0) + (qTotal||0);
+  const additionalTotal = (psAddendumTotal||0) + (seTotal||0);
+  document.getElementById('sumMonthly').textContent = fmt(psBaseTotal||0);
+  document.getElementById('sumQ').textContent = fmt(qTotal||0);
+  document.getElementById('sumBase').textContent = fmt(mainTotal);
+  document.getElementById('sumAddendum').textContent = fmt(psAddendumTotal||0);
+  document.getElementById('sumSE').textContent = fmt(seTotal||0);
+  document.getElementById('sumAdditional').textContent = fmt(additionalTotal);
+  document.getElementById('sumTotal').textContent = fmt(mainTotal + additionalTotal);
+}
+
+function toggleRules(){ document.getElementById('rules').classList.toggle('show'); }
+
+function doPrint(){
+  const t0 = Date.now();
+  let threw = false;
+  try { window.print(); } catch(e){ threw = true; }
+  // window.print() blocks while the dialog is open; instant return inside an
+  // iframe means the sandbox silently swallowed it.
+  if (threw || (window.self !== window.top && (Date.now() - t0) < 100)){
+    alert('Fitur cetak tidak tersedia di tampilan preview ini.\n\nBuka halaman langsung di browser (link GitHub Pages, atau file HTML dibuka langsung), lalu klik Cetak / Simpan PDF — atau gunakan Ctrl+P / Cmd+P dari sana.');
+  }
+}
+
+function loadSample(){
+  const months = getMonthList();
+  syncDataToMonths(months);
+  const psSample = { 6:2900000000, 7:2850000000, 8:2250000000, 9:1900000000, 10:1300000000, 11:1750000000, 12:3500000000 };
+  months.forEach(m => {
+    if (psSample[m.month]){
+      psAmountData[m.key] = formatThousands(String(psSample[m.month]));
+      psData[m.key] = categorizePS(psSample[m.month]);
+      seData[m.key] = categorizeSE(psSample[m.month]);
+    }
+  });
+  render();
+}
+
+syncDataToMonths(getMonthList());
+render();
+</script>
+</body>
+</html>

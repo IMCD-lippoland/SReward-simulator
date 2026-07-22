@@ -221,23 +221,47 @@
   footer.page-footer{ text-align:center; color:#B9AF9C; font-size:11px; margin-top:30px; font-family:'JetBrains Mono',monospace; letter-spacing:.04em; }
 
   @media print{
-    @page{ size: landscape; margin: 12mm; }
+    @page{ size: landscape; margin: 8mm; }
     *{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    html{ zoom: 0.8; }
     body{ background:#fff; }
+    .wrap{ padding: 0 4px; max-width: none; }
     .info-toggle, .ghost-btn, .mode-switch{ display:none !important; }
     .layout{ grid-template-columns: 1fr; }
     .ladder{ display:none; }
-    header p, .eyebrow{ color:#333; }
-    h1{ color:#000; }
+    header{ margin-bottom: 8px; }
+    header p{ display:none; }
+    .eyebrow{ color:#333; font-size:9px; margin-bottom:2px; }
+    h1{ color:#000; font-size:18px; margin:0 0 2px; }
+    #rules{ display:none !important; }
+    .disclaimer{ display:none !important; }
+    .program-strip{ font-size:9.5px; padding:5px 10px; margin-bottom:8px; }
+    .period-bar{ display:none !important; }
+    .summary{ gap:8px; margin-bottom:10px; }
+    .card{ padding:8px 10px; }
+    .card .label{ font-size:8.5px; margin-bottom:3px; }
+    .card .value{ font-size:15px; }
+    .card.total .value{ font-size:16px; }
+    .sub-breakdown{ font-size:9px; margin-top:4px; padding-top:4px; gap:1px; }
+    .section-title{ margin: 8px 0 4px; }
+    .section-title h2{ font-size:12px; }
+    .ledger-head{ padding: 6px 10px 4px; }
+    .ledger-head h3{ font-size:11px; }
+    .threshold-hint{ font-size:8.5px; padding:0 10px 4px; }
     select.tier-select, .amount-input{
       appearance:none; -webkit-appearance:none; border:none; background:none;
-      padding:2px 0; font-size:11px; color:#000; width:auto;
+      padding:1px 0; font-size:8.5px; color:#000; width:auto;
     }
     .table-scroll{ overflow-x:visible !important; }
-    table.ledger{ min-width:0 !important; width:100%; font-size:10px; }
-    table.ledger th, table.ledger td{ padding:4px 6px; }
+    table.ledger{ min-width:0 !important; width:100%; font-size:8px; }
+    table.ledger th, table.ledger td{ padding:2px 5px; }
     table.ledger th:first-child, table.ledger td:first-child,
     table.ledger th:last-child, table.ledger td:last-child{ position:static !important; box-shadow:none !important; }
+    .cell-sub, .detected-cat, .reward-breakdown{ font-size:7px; margin-top:1px; }
+    .badge-rate{ font-size:7px; padding:1px 5px; }
+    tfoot td{ padding:5px; }
+    .ledger-wrap{ margin-top:8px !important; }
+    footer.page-footer{ display:none; }
   }
 </style>
 </head>

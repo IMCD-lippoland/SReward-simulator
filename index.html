@@ -413,6 +413,11 @@ function setInputMode(mode){
       psData[m.key] = categorizePS(amt);
       seData[m.key] = categorizeSE(amt);
     });
+  } else {
+    // category drives the tier
+    getMonthList().forEach(m => {
+      seData[m.key] = PS_TO_SE[psData[m.key]] || '-';
+    });
   }
   document.getElementById('modeAmount').classList.toggle('active', mode==='amount');
   document.getElementById('modeCategory').classList.toggle('active', mode==='category');
@@ -445,8 +450,13 @@ function clearAllData(){
   render();
 }
 
+const PS_TO_SE = { '-':'-', productive:'productive', elite:'elite', super:'superstar', champion:'champ1', legend:'champ2' };
 function updateSETier(key, val){ seData[key] = val; render(); }
-function updatePSTier(key, val){ psData[key] = val; render(); }
+function updatePSTier(key, val){
+  psData[key] = val;
+  seData[key] = PS_TO_SE[val] || '-';
+  render();
+}
 function formatThousands(digits){
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
@@ -581,13 +591,9 @@ function renderCombinedSection(months){
       const boosterCell = boosterTotal > 0
         ? `${fmt(boosterTotal)}<div class="cell-sub">${parts.join(' · ')}</div>`
         : `—`;
-      const tierControl = inputMode === 'amount'
-        ? (r.tierObj.key !== '-'
+      const tierControl = (r.tierObj.key !== '-'
             ? `<span style="font-weight:600;">${r.tierObj.label}</span>`
-            : `<span style="color:#C4BBAB;">—</span>`)
-        : `<select class="tier-select" onchange="updateSETier(${m.key}, this.value)">
-            ${SE_TIERS.map(t=>`<option value="${t.key}" ${t.key===r.tier?'selected':''}>${t.label}</option>`).join('')}
-          </select>`;
+            : `<span style="color:#C4BBAB;">—</span>`);
       seCells = `
         <td data-label="Tier Reward">${tierControl}<div class="cell-sub">${r.notes}</div></td>
         <td data-label="Reward Booster" class="num ${boosterTotal===0?'zero':''}">${boosterCell}</td>

@@ -262,10 +262,10 @@
     <p>Berlaku efektif untuk perhitungan mulai <strong>Juni 2026</strong> (IM 0039/IMCD/VII/2026). Climb diberikan saat pertama kali mencapai tier baru yang lebih tinggi dari tier tertinggi sebelumnya (maks 1x/tier). Repeat dihitung dari pencapaian tier sama berturut-turut, mulai bulan ke-2, reset jika tier berubah atau ada bulan kosong.</p>
     <table>
       <tr><th>Tier</th><th>Reward Climb</th><th>Reward Repeat /bln</th></tr>
-      <tr><td>Productive</td><td class="num">Rp 2.500.000</td><td class="num">Rp 1.000.000</td></tr>
-      <tr><td>Elite</td><td class="num">Rp 5.000.000</td><td class="num">Rp 3.000.000</td></tr>
-      <tr><td>Superstar</td><td class="num">Rp 10.000.000</td><td class="num">Rp 4.000.000</td></tr>
-      <tr><td>Champion (≤300%)</td><td class="num">Rp 15.000.000</td><td class="num">Rp 6.000.000</td></tr>
+      <tr><td>Productive (100–150%)</td><td class="num">Rp 2.500.000</td><td class="num">Rp 1.000.000</td></tr>
+      <tr><td>Elite (150–200%)</td><td class="num">Rp 5.000.000</td><td class="num">Rp 3.000.000</td></tr>
+      <tr><td>Superstar (200–250%)</td><td class="num">Rp 10.000.000</td><td class="num">Rp 4.000.000</td></tr>
+      <tr><td>Champion (250–300%)</td><td class="num">Rp 15.000.000</td><td class="num">Rp 6.000.000</td></tr>
       <tr><td>Legend (&gt;300%)</td><td class="num">Rp 20.000.000</td><td class="num">Rp 10.000.000</td></tr>
     </table>
 
@@ -343,10 +343,10 @@
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 const SE_TIERS = [
   { key:'-', label:'— Belum tercapai', rank:0, color:'var(--c-none)', climb:0, repeat:0 },
-  { key:'productive', label:'Productive', rank:1, color:'var(--c-productive)', climb:2500000, repeat:1000000 },
-  { key:'elite', label:'Elite', rank:2, color:'var(--c-elite)', climb:5000000, repeat:3000000 },
-  { key:'superstar', label:'Superstar', rank:3, color:'var(--c-superstar)', climb:10000000, repeat:4000000 },
-  { key:'champ1', label:'Champion (≤300%)', rank:4, color:'var(--c-champ1)', climb:15000000, repeat:6000000 },
+  { key:'productive', label:'Productive (100–150%)', rank:1, color:'var(--c-productive)', climb:2500000, repeat:1000000 },
+  { key:'elite', label:'Elite (150–200%)', rank:2, color:'var(--c-elite)', climb:5000000, repeat:3000000 },
+  { key:'superstar', label:'Superstar (200–250%)', rank:3, color:'var(--c-superstar)', climb:10000000, repeat:4000000 },
+  { key:'champ1', label:'Champion (250–300%)', rank:4, color:'var(--c-champ1)', climb:15000000, repeat:6000000 },
   { key:'champ2', label:'Legend (>300%)', rank:5, color:'var(--c-champ2)', climb:20000000, repeat:10000000 },
 ];
 const PS_TIERS = [
@@ -512,13 +512,17 @@ function computeSE(months){
 function parseAmount(val){
   return parseInt(String(val||'').replace(/[^0-9]/g, ''), 10) || 0;
 }
+const PS_TIER_MIN = { '-':0, productive: 1100000000, elite: 1650000000, super: 2200000000, champion: 2750000000, legend: 3300000000 };
 function computeQuarterly(months){
   const quarters = {};
   months.forEach(m => {
     const q = Math.ceil(m.month/3);
     const qk = m.year + '-Q' + q;
     if (!quarters[qk]) quarters[qk] = { label: 'Q'+q+' '+m.year, total: 0, monthCount: 0 };
-    quarters[qk].total += parseAmount(psAmountData[m.key]);
+    const amt = inputMode === 'amount'
+      ? parseAmount(psAmountData[m.key])
+      : (PS_TIER_MIN[psData[m.key]] || 0);
+    quarters[qk].total += amt;
     quarters[qk].monthCount++;
   });
   let total = 0;
@@ -661,21 +665,19 @@ function renderCombinedSection(months){
     </div>
   `;
 
-  const qr = inputMode === 'amount' ? computeQuarterly(months) : { rows: [], total: 0 };
+  const qr = computeQuarterly(months);
   const qBody = qr.rows.map(q => `
     <tr>
       <td class="month-cell">${q.label}</td>
-      <td data-label="Total Eligible Sales" class="num">${q.total>0?fmt(q.total):'—'}</td>
+      <td data-label="Total Eligible Sales" class="num">${q.total>0?fmt(q.total):'—'}${inputMode==='category' && q.total>0 ? '<div class="cell-sub">estimasi dari kategori (batas bawah)</div>' : ''}</td>
       <td data-label="Kategori">${q.tier ? q.tier.label : '<span style="color:#B9AF9C;">Di bawah target min. (Rp 3,3 M)</span>'}</td>
       <td data-label="Reward Quarterly" class="num ${q.reward===0?'zero':''}">${q.reward>0?fmt(q.reward):'—'}</td>
     </tr>
   `).join('');
-  const qEmptyNote = inputMode === 'amount'
-    ? 'Isi Eligible Sales bulanan di atas — total per quarter dihitung otomatis.'
-    : 'Quarterly dihitung dari nominal Eligible Sales — ganti Input PS ke mode "Nominal Sales" untuk menghitung reward quarterly.';
+  const qEmptyNote = 'Isi Eligible Sales atau kategori bulanan di atas — total per quarter dihitung otomatis.';
   const quarterlyHtml = `
     <div class="ledger-wrap" style="margin-top:18px;">
-      <div class="ledger-head"><h3>Additional Quarterly (Park Serpong)</h3></div>
+      <div class="ledger-head"><h3>Additional Quarterly (Park Serpong)${inputMode==='category' ? ' — Estimasi' : ''}</h3></div>
       <div class="table-scroll">
         <table class="ledger" style="min-width:0;">
           <thead><tr><th>Quarter</th><th>Total Eligible Sales</th><th>Kategori</th><th>Reward Quarterly</th></tr></thead>

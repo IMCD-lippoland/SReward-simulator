@@ -589,7 +589,7 @@ function renderCombinedSection(months){
             ${SE_TIERS.map(t=>`<option value="${t.key}" ${t.key===r.tier?'selected':''}>${t.label}</option>`).join('')}
           </select>`;
       seCells = `
-        <td data-label="Tier Free Fight">${tierControl}<div class="cell-sub">${r.notes}</div></td>
+        <td data-label="Tier Reward">${tierControl}<div class="cell-sub">${r.notes}</div></td>
         <td data-label="Reward Booster" class="num ${boosterTotal===0?'zero':''}">${boosterCell}</td>
       `;
     }
@@ -611,7 +611,7 @@ function renderCombinedSection(months){
         `;
       } else {
         firstCells = `
-          <td colspan="2" data-label="Kategori PS"><select class="tier-select" onchange="updatePSTier(${m.key}, this.value)">
+          <td colspan="2" data-label="Kategori"><select class="tier-select" onchange="updatePSTier(${m.key}, this.value)">
             ${PS_TIERS.map(t=>`<option value="${t.key}" ${t.key===p.tier?'selected':''}>${t.label}</option>`).join('')}
           </select>${rateBadge ? `<div style="margin-top:3px;">${rateBadge}</div>` : ''}</td>
         `;
@@ -633,10 +633,10 @@ function renderCombinedSection(months){
     </tr>`;
   }).join('');
 
-  const seHead = se ? `<th>Tier SE (Free Fight)</th><th>Reward Booster</th>` : '';
+  const seHead = se ? `<th>Tier Reward</th><th>Reward Booster</th>` : '';
   const psHead = ps ? (inputMode === 'amount'
     ? `<th>Eligible Sales (Rp)</th><th>Kategori</th><th>Reward Fondasi</th>`
-    : `<th colspan="2">Kategori PS (Park Serpong)</th><th>Reward Fondasi</th>`) : '';
+    : `<th colspan="2">Kategori</th><th>Reward Fondasi</th>`) : '';
 
   const rungsHtml = se ? SE_TIERS.filter(t=>t.key!=='-').slice().reverse().map(t=>{
     const reached = t.rank <= se.maxRank;
